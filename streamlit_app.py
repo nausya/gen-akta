@@ -44,7 +44,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 
 # === TAB 1: UMUM ===
 with tab1:
-    st.selectbox("Jenis Badan Hukum", ["", "CV", "Yayasan", "PT"], key="jenis_badan")
+    st.selectbox("Jenis Badan Hukum", ["CV", "CV", "Yayasan", "PT"], key="jenis_badan")
     st.text_input("Nama Badan Hukum", key="nama_badan")
     st.date_input("Tanggal Akta", key="tanggal_akta", value=datetime.strptime(st.session_state.data["tanggal_akta"], "%Y-%m-%d"))
     st.text_input("Jam Akta", key="jam_akta")
