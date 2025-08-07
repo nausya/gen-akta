@@ -42,7 +42,7 @@ def load_draft():
 try:
     st.sidebar.image(st.session_state.data["logo"], width=200)
 except:
-    st.sidebar.image("assets/logo_dummy.png", width=200)
+    st.sidebar.image("logo.png", width=200)
 
 st.sidebar.markdown("##")
 menu = st.sidebar.radio("Navigasi", ["Pembuatan Akta", "Persuratan", "Profil Notaris", "Admin Web"])
