@@ -3,7 +3,6 @@ from docxtpl import DocxTemplate
 from datetime import datetime
 import json
 import os
-from doc_reader import parse_docx_template
 
 st.set_page_config(page_title="Akta Notaris Dinamis", layout="wide")
 st.title("📄 Aplikasi Akta Pendirian Badan Hukum")
@@ -37,19 +36,6 @@ def load_draft():
             st.session_state.data = json.load(f)
         st.success("📂 Draft berhasil dimuat!")
 
-# === Sidebar ===
-with st.sidebar:
-    st.markdown("## 📤 Upload Template Awal")
-    uploaded = st.file_uploader("Pilih file .docx (CV/Yayasan)", type=["docx"])
-    if uploaded:
-        parsed = parse_docx_template(uploaded)
-        st.session_state.data.update(parsed)
-        st.success("✅ Data awal berhasil dimuat dari template!")
-
-    if st.button("💾 Simpan Draft"):
-        save_draft()
-    if st.button("📂 Muat Draft Lama"):
-        load_draft()
 
 # === TABs ===
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
