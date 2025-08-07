@@ -1,94 +1,124 @@
 import streamlit as st
 from docxtpl import DocxTemplate
 from datetime import datetime
-import os
 
-st.title("📜 Generator Akta Pendirian CV")
-
-with st.form("form_cv"):
-    nomor_akta = st.text_input("Nomor Akta")
-    tanggal_akta = st.date_input("Tanggal Akta", datetime.today())
-    jam_akta = st.text_input("Jam Akta (contoh: 19.04 WIB)")
-    nama_cv = st.text_input("Nama CV")
-    alamat_cv = st.text_area("Alamat CV")
-
-    nama_pihak1 = st.text_input("Nama Pihak 1")
-    ttl_pihak1 = st.text_input("Tempat & Tanggal Lahir Pihak 1")
-    pekerjaan_pihak1 = st.text_input("Pekerjaan Pihak 1")
-    alamat_pihak1 = st.text_area("Alamat Pihak 1")
-    nik_pihak1 = st.text_input("NIK Pihak 1")
-    modal_pihak1 = st.number_input("Modal Pihak 1 (Rp)", min_value=0)
-    modal_pihak1_terbilang = st.text_input("Modal Pihak 1 (terbilang)")
-
-    nama_pihak2 = st.text_input("Nama Pihak 2")
-    ttl_pihak2 = st.text_input("Tempat & Tanggal Lahir Pihak 2")
-    pekerjaan_pihak2 = st.text_input("Pekerjaan Pihak 2")
-    alamat_pihak2 = st.text_area("Alamat Pihak 2")
-    nik_pihak2 = st.text_input("NIK Pihak 2")
-    modal_pihak2 = st.number_input("Modal Pihak 2 (Rp)", min_value=0)
-    modal_pihak2_terbilang = st.text_input("Modal Pihak 2 (terbilang)")
-
-    bidang_usaha = st.text_area("Bidang Usaha & KBLI")
-    modal_total = modal_pihak1 + modal_pihak2
-    modal_total_terbilang = st.text_input("Modal Total (terbilang)")
-
-    nama_notaris = st.text_input("Nama Notaris")
-    nama_saksi1 = st.text_input("Nama Saksi 1")
-    ttl_saksi1 = st.text_input("Tempat & Tanggal Lahir Saksi 1")
-    alamat_saksi1 = st.text_area("Alamat Saksi 1")
-    nik_saksi1 = st.text_input("NIK Saksi 1")
-
-    nama_saksi2 = st.text_input("Nama Saksi 2")
-    ttl_saksi2 = st.text_input("Tempat & Tanggal Lahir Saksi 2")
-    alamat_saksi2 = st.text_area("Alamat Saksi 2")
-    nik_saksi2 = st.text_input("NIK Saksi 2")
-
-    submit = st.form_submit_button("Buat Akta")
-
-if submit:
-    doc = DocxTemplate("akta_pendirian_cv_template.docx")
-    context = {
-        "nomor_akta": nomor_akta,
-        "tanggal_akta": tanggal_akta.strftime("%d-%m-%Y"),
-        "jam_akta": jam_akta,
-        "nama_cv": nama_cv,
-        "alamat_cv": alamat_cv,
-        "nama_pihak1": nama_pihak1,
-        "ttl_pihak1": ttl_pihak1,
-        "pekerjaan_pihak1": pekerjaan_pihak1,
-        "alamat_pihak1": alamat_pihak1,
-        "nik_pihak1": nik_pihak1,
-        "modal_pihak1": f"Rp. {modal_pihak1:,}",
-        "modal_pihak1_terbilang": modal_pihak1_terbilang,
-        "nama_pihak2": nama_pihak2,
-        "ttl_pihak2": ttl_pihak2,
-        "pekerjaan_pihak2": pekerjaan_pihak2,
-        "alamat_pihak2": alamat_pihak2,
-        "nik_pihak2": nik_pihak2,
-        "modal_pihak2": f"Rp. {modal_pihak2:,}",
-        "modal_pihak2_terbilang": modal_pihak2_terbilang,
-        "bidang_usaha": bidang_usaha,
-        "modal_total": f"Rp. {modal_total:,}",
-        "modal_total_terbilang": modal_total_terbilang,
-        "nama_notaris": nama_notaris,
-        "nama_saksi1": nama_saksi1,
-        "ttl_saksi1": ttl_saksi1,
-        "alamat_saksi1": alamat_saksi1,
-        "nik_saksi1": nik_saksi1,
-        "nama_saksi2": nama_saksi2,
-        "ttl_saksi2": ttl_saksi2,
-        "alamat_saksi2": alamat_saksi2,
-        "nik_saksi2": nik_saksi2
+# Inisialisasi session_state
+if "info" not in st.session_state:
+    st.session_state.info = {
+        "nomor_akta": "",
+        "tanggal_akta": datetime.today(),
+        "jam_akta": "",
+        "nama_cv": "",
+        "alamat_cv": "",
+        "bidang_usaha": "",
+        "modal_total_terbilang": "",
+        "nama_notaris": ""
     }
-    doc.render(context)
 
-    output_path = f"akta_pendirian_cv_{nomor_akta}.docx"
-    doc.save(output_path)
+if "pihak" not in st.session_state:
+    st.session_state.pihak = []
 
-    with open(output_path, "rb") as f:
-        st.download_button(
-            label="📥 Download Akta",
-            data=f,
-            file_name=output_path,
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+if "saksi" not in st.session_state:
+    st.session_state.saksi = []
+
+# Tabs menu
+tabs = st.tabs(["📄 Informasi Akta", "👥 Para Pihak", "🏢 Perseroan", "🖋 Saksi", "📑 Generate"])
+
+# Tab Informasi Akta
+with tabs[0]:
+    st.subheader("Informasi Akta")
+    st.session_state.info["nomor_akta"] = st.text_input("Nomor Akta", st.session_state.info["nomor_akta"])
+    st.session_state.info["tanggal_akta"] = st.date_input("Tanggal Akta", st.session_state.info["tanggal_akta"])
+    st.session_state.info["jam_akta"] = st.text_input("Jam Akta", st.session_state.info["jam_akta"])
+    st.session_state.info["nama_cv"] = st.text_input("Nama CV", st.session_state.info["nama_cv"])
+    st.session_state.info["alamat_cv"] = st.text_area("Alamat CV", st.session_state.info["alamat_cv"])
+
+# Tab Para Pihak (Dinamis)
+with tabs[1]:
+    st.subheader("Daftar Para Pihak")
+    for i, pihak in enumerate(st.session_state.pihak):
+        st.text_input(f"Nama Pihak {i+1}", pihak.get("nama",""), key=f"pihak_nama_{i}")
+        st.text_input(f"TTL Pihak {i+1}", pihak.get("ttl",""), key=f"pihak_ttl_{i}")
+        st.text_input(f"Pekerjaan Pihak {i+1}", pihak.get("pekerjaan",""), key=f"pihak_pekerjaan_{i}")
+        st.text_area(f"Alamat Pihak {i+1}", pihak.get("alamat",""), key=f"pihak_alamat_{i}")
+        st.text_input(f"NIK Pihak {i+1}", pihak.get("nik",""), key=f"pihak_nik_{i}")
+        st.number_input(f"Modal Pihak {i+1} (Rp)", min_value=0, value=int(pihak.get("modal",0)), key=f"pihak_modal_{i}")
+        st.text_input(f"Modal Pihak {i+1} (terbilang)", pihak.get("modal_terbilang",""), key=f"pihak_modal_terbilang_{i}")
+        if st.button(f"❌ Hapus Pihak {i+1}"):
+            st.session_state.pihak.pop(i)
+            st.experimental_rerun()
+    if st.button("➕ Tambah Pihak"):
+        st.session_state.pihak.append({
+            "nama": "", "ttl": "", "pekerjaan": "", "alamat": "",
+            "nik": "", "modal": 0, "modal_terbilang": ""
+        })
+        st.experimental_rerun()
+
+# Tab Perseroan
+with tabs[2]:
+    st.subheader("Informasi Perseroan")
+    st.session_state.info["bidang_usaha"] = st.text_area("Bidang Usaha & KBLI", st.session_state.info["bidang_usaha"])
+    total_modal = sum(int(st.session_state.get(f"pihak_modal_{i}",0)) for i in range(len(st.session_state.pihak)))
+    st.write(f"Modal Total (otomatis): Rp. {total_modal:,}")
+    st.session_state.info["modal_total_terbilang"] = st.text_input("Modal Total (terbilang)", st.session_state.info["modal_total_terbilang"])
+
+# Tab Saksi (Dinamis)
+with tabs[3]:
+    st.subheader("Daftar Saksi")
+    for i, saksi in enumerate(st.session_state.saksi):
+        st.text_input(f"Nama Saksi {i+1}", saksi.get("nama",""), key=f"saksi_nama_{i}")
+        st.text_input(f"TTL Saksi {i+1}", saksi.get("ttl",""), key=f"saksi_ttl_{i}")
+        st.text_area(f"Alamat Saksi {i+1}", saksi.get("alamat",""), key=f"saksi_alamat_{i}")
+        st.text_input(f"NIK Saksi {i+1}", saksi.get("nik",""), key=f"saksi_nik_{i}")
+        if st.button(f"❌ Hapus Saksi {i+1}"):
+            st.session_state.saksi.pop(i)
+            st.experimental_rerun()
+    if st.button("➕ Tambah Saksi"):
+        st.session_state.saksi.append({"nama": "", "ttl": "", "alamat": "", "nik": ""})
+        st.experimental_rerun()
+
+# Tab Generate Dokumen
+with tabs[4]:
+    st.subheader("Generate Dokumen Akta")
+    if st.button("📄 Buat Akta"):
+        pihak_data = []
+        for i in range(len(st.session_state.pihak)):
+            pihak_data.append({
+                "nama": st.session_state.get(f"pihak_nama_{i}",""),
+                "ttl": st.session_state.get(f"pihak_ttl_{i}",""),
+                "pekerjaan": st.session_state.get(f"pihak_pekerjaan_{i}",""),
+                "alamat": st.session_state.get(f"pihak_alamat_{i}",""),
+                "nik": st.session_state.get(f"pihak_nik_{i}",""),
+                "modal": f"Rp. {int(st.session_state.get(f'pihak_modal_{i}',0)):,}",
+                "modal_terbilang": st.session_state.get(f"pihak_modal_terbilang_{i}","")
+            })
+
+        saksi_data = []
+        for i in range(len(st.session_state.saksi)):
+            saksi_data.append({
+                "nama": st.session_state.get(f"saksi_nama_{i}",""),
+                "ttl": st.session_state.get(f"saksi_ttl_{i}",""),
+                "alamat": st.session_state.get(f"saksi_alamat_{i}",""),
+                "nik": st.session_state.get(f"saksi_nik_{i}","")
+            })
+
+        total_modal = sum(int(st.session_state.get(f"pihak_modal_{i}",0)) for i in range(len(pihak_data)))
+
+        doc = DocxTemplate("akta_pendirian_cv_template.docx")
+        context = {
+            **st.session_state.info,
+            "tanggal_akta": st.session_state.info["tanggal_akta"].strftime("%d-%m-%Y"),
+            "pihak_list": pihak_data,
+            "saksi_list": saksi_data,
+            "modal_total": f"Rp. {total_modal:,}"
+        }
+        doc.render(context)
+        output_path = f"akta_pendirian_cv_{st.session_state.info['nomor_akta']}.docx"
+        doc.save(output_path)
+        with open(output_path, "rb") as f:
+            st.download_button(
+                "📥 Download Akta",
+                f,
+                file_name=output_path,
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
