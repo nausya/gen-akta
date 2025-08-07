@@ -19,7 +19,7 @@ if "data" not in st.session_state:
         "modal": [],
         "kbli_list": [],
         "nama_notaris": "UTAMI RAHMAYANTI, S.H.,M.Kn",
-        "logo": "UR (2).png"
+        "logo": "ur1.png"
     }
 
 DATA_FILE = "draft_data.json"
