@@ -1,128 +1,94 @@
 import streamlit as st
 from docxtpl import DocxTemplate
 from datetime import datetime
-import json
 import os
 
-st.set_page_config(page_title="Akta Notaris Dinamis", layout="wide")
-st.title("📄 Aplikasi Akta Pendirian Badan Hukum")
+st.title("📜 Generator Akta Pendirian CV")
 
-DATA_FILE = "draft_data.json"
+with st.form("form_cv"):
+    nomor_akta = st.text_input("Nomor Akta")
+    tanggal_akta = st.date_input("Tanggal Akta", datetime.today())
+    jam_akta = st.text_input("Jam Akta (contoh: 19.04 WIB)")
+    nama_cv = st.text_input("Nama CV")
+    alamat_cv = st.text_area("Alamat CV")
 
-# Inisialisasi default state
-if "data" not in st.session_state:
-    st.session_state.data = {
-        "jenis_badan": "",
-        "nama_badan": "",
-        "alamat": "",
-        "bidang_usaha": "",
-        "tanggal_akta": str(datetime.today().date()),
-        "jam_akta": "",
-        "nama_notaris": "",
-        "pengurus_list": [],
-        "modal_list": [],
-        "kbli_list": []
+    nama_pihak1 = st.text_input("Nama Pihak 1")
+    ttl_pihak1 = st.text_input("Tempat & Tanggal Lahir Pihak 1")
+    pekerjaan_pihak1 = st.text_input("Pekerjaan Pihak 1")
+    alamat_pihak1 = st.text_area("Alamat Pihak 1")
+    nik_pihak1 = st.text_input("NIK Pihak 1")
+    modal_pihak1 = st.number_input("Modal Pihak 1 (Rp)", min_value=0)
+    modal_pihak1_terbilang = st.text_input("Modal Pihak 1 (terbilang)")
+
+    nama_pihak2 = st.text_input("Nama Pihak 2")
+    ttl_pihak2 = st.text_input("Tempat & Tanggal Lahir Pihak 2")
+    pekerjaan_pihak2 = st.text_input("Pekerjaan Pihak 2")
+    alamat_pihak2 = st.text_area("Alamat Pihak 2")
+    nik_pihak2 = st.text_input("NIK Pihak 2")
+    modal_pihak2 = st.number_input("Modal Pihak 2 (Rp)", min_value=0)
+    modal_pihak2_terbilang = st.text_input("Modal Pihak 2 (terbilang)")
+
+    bidang_usaha = st.text_area("Bidang Usaha & KBLI")
+    modal_total = modal_pihak1 + modal_pihak2
+    modal_total_terbilang = st.text_input("Modal Total (terbilang)")
+
+    nama_notaris = st.text_input("Nama Notaris")
+    nama_saksi1 = st.text_input("Nama Saksi 1")
+    ttl_saksi1 = st.text_input("Tempat & Tanggal Lahir Saksi 1")
+    alamat_saksi1 = st.text_area("Alamat Saksi 1")
+    nik_saksi1 = st.text_input("NIK Saksi 1")
+
+    nama_saksi2 = st.text_input("Nama Saksi 2")
+    ttl_saksi2 = st.text_input("Tempat & Tanggal Lahir Saksi 2")
+    alamat_saksi2 = st.text_area("Alamat Saksi 2")
+    nik_saksi2 = st.text_input("NIK Saksi 2")
+
+    submit = st.form_submit_button("Buat Akta")
+
+if submit:
+    doc = DocxTemplate("akta_pendirian_cv_template.docx")
+    context = {
+        "nomor_akta": nomor_akta,
+        "tanggal_akta": tanggal_akta.strftime("%d-%m-%Y"),
+        "jam_akta": jam_akta,
+        "nama_cv": nama_cv,
+        "alamat_cv": alamat_cv,
+        "nama_pihak1": nama_pihak1,
+        "ttl_pihak1": ttl_pihak1,
+        "pekerjaan_pihak1": pekerjaan_pihak1,
+        "alamat_pihak1": alamat_pihak1,
+        "nik_pihak1": nik_pihak1,
+        "modal_pihak1": f"Rp. {modal_pihak1:,}",
+        "modal_pihak1_terbilang": modal_pihak1_terbilang,
+        "nama_pihak2": nama_pihak2,
+        "ttl_pihak2": ttl_pihak2,
+        "pekerjaan_pihak2": pekerjaan_pihak2,
+        "alamat_pihak2": alamat_pihak2,
+        "nik_pihak2": nik_pihak2,
+        "modal_pihak2": f"Rp. {modal_pihak2:,}",
+        "modal_pihak2_terbilang": modal_pihak2_terbilang,
+        "bidang_usaha": bidang_usaha,
+        "modal_total": f"Rp. {modal_total:,}",
+        "modal_total_terbilang": modal_total_terbilang,
+        "nama_notaris": nama_notaris,
+        "nama_saksi1": nama_saksi1,
+        "ttl_saksi1": ttl_saksi1,
+        "alamat_saksi1": alamat_saksi1,
+        "nik_saksi1": nik_saksi1,
+        "nama_saksi2": nama_saksi2,
+        "ttl_saksi2": ttl_saksi2,
+        "alamat_saksi2": alamat_saksi2,
+        "nik_saksi2": nik_saksi2
     }
+    doc.render(context)
 
-# Fungsi Simpan/Muat Draft
-def save_draft():
-    with open(DATA_FILE, "w") as f:
-        json.dump(st.session_state.data, f)
-    st.success("✅ Draft disimpan!")
+    output_path = f"akta_pendirian_cv_{nomor_akta}.docx"
+    doc.save(output_path)
 
-def load_draft():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            st.session_state.data = json.load(f)
-        st.success("📂 Draft berhasil dimuat!")
-
-
-# === TABs ===
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📘 Umum", "🏢 Alamat", "👥 Pengurus", "💰 Modal", "📚 KBLI", "📄 Export"
-])
-
-# === TAB 1: UMUM ===
-with tab1:
-    st.selectbox("Jenis Badan Hukum", ["CV", "CV", "Yayasan", "PT"], key="jenis_badan")
-    st.text_input("Nama Badan Hukum", key="nama_badan")
-    st.date_input("Tanggal Akta", key="tanggal_akta", value=datetime.strptime(st.session_state.data["tanggal_akta"], "%Y-%m-%d"))
-    st.text_input("Jam Akta", key="jam_akta")
-    st.text_input("Nama Notaris", key="nama_notaris")
-
-# === TAB 2: ALAMAT ===
-with tab2:
-    st.text_area("Alamat Lengkap", key="alamat")
-    st.text_area("Maksud & Tujuan Usaha", key="bidang_usaha")
-
-# === TAB 3: PENGURUS ===
-with tab3:
-    st.markdown("### Struktur Pengurus")
-    for i, p in enumerate(st.session_state.data["pengurus_list"]):
-        st.session_state.data["pengurus_list"][i]["jabatan"] = st.text_input(f"Jabatan #{i+1}", p["jabatan"], key=f"pj{i}")
-        st.session_state.data["pengurus_list"][i]["nama"] = st.text_input(f"Nama #{i+1}", p["nama"], key=f"pn{i}")
-        st.session_state.data["pengurus_list"][i]["nik"] = st.text_input(f"NIK #{i+1}", p["nik"], key=f"pnik{i}")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("➕ Tambah Pengurus"):
-            st.session_state.data["pengurus_list"].append({"jabatan": "", "nama": "", "nik": ""})
-    with col2:
-        if st.button("🗑 Hapus Terakhir") and st.session_state.data["pengurus_list"]:
-            st.session_state.data["pengurus_list"].pop()
-
-# === TAB 4: MODAL ===
-with tab4:
-    st.markdown("### Modal / Kekayaan Awal")
-    for i, m in enumerate(st.session_state.data["modal_list"]):
-        st.session_state.data["modal_list"][i]["nama"] = st.text_input(f"Nama Penyetor #{i+1}", m["nama"], key=f"mn{i}")
-        st.session_state.data["modal_list"][i]["peran"] = st.text_input(f"Peran #{i+1}", m["peran"], key=f"mp{i}")
-        st.session_state.data["modal_list"][i]["jumlah"] = st.number_input(f"Jumlah #{i+1}", value=m["jumlah"], key=f"mj{i}")
-        st.session_state.data["modal_list"][i]["jenis"] = st.text_input(f"Jenis Modal #{i+1}", m["jenis"], key=f"mjns{i}")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("➕ Tambah Modal"):
-            st.session_state.data["modal_list"].append({"nama": "", "peran": "", "jumlah": 0, "jenis": ""})
-    with col2:
-        if st.button("🗑 Hapus Modal Terakhir") and st.session_state.data["modal_list"]:
-            st.session_state.data["modal_list"].pop()
-
-# === TAB 5: KBLI ===
-with tab5:
-    st.markdown("### Klasifikasi KBLI")
-    for i, k in enumerate(st.session_state.data["kbli_list"]):
-        st.session_state.data["kbli_list"][i]["kode"] = st.text_input(f"Kode KBLI #{i+1}", k["kode"], key=f"kk{i}")
-        st.session_state.data["kbli_list"][i]["judul"] = st.text_input(f"Uraian KBLI #{i+1}", k["judul"], key=f"kj{i}")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("➕ Tambah KBLI"):
-            st.session_state.data["kbli_list"].append({"kode": "", "judul": ""})
-    with col2:
-        if st.button("🗑 Hapus KBLI Terakhir") and st.session_state.data["kbli_list"]:
-            st.session_state.data["kbli_list"].pop()
-
-with tab6:
-    st.markdown("### 📄 Buat Dokumen Akta")
-    template_map = {
-        "CV": "template_cv.docx",
-        "Yayasan": "template_yayasan.docx",
-        "PT": "template_pt.docx"
-    }
-    jenis = st.session_state.data.get("jenis_badan", "")
-    
-    if jenis not in template_map:
-        st.warning("⚠️ Silakan isi jenis badan hukum di Tab Umum terlebih dahulu.")
-    else:
-        template_file = template_map[jenis]
-        if not os.path.exists(template_file):
-            st.error(f"❌ Template tidak ditemukan: {template_file}")
-        else:
-            if st.button("📄 Generate DOCX"):
-                doc = DocxTemplate(template_file)
-                doc.render(st.session_state.data)
-                filename = f"akta_{jenis.lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
-                doc.save(filename)
-                with open(filename, "rb") as f:
-                    st.download_button("📥 Download Akta", f, file_name=filename)
+    with open(output_path, "rb") as f:
+        st.download_button(
+            label="📥 Download Akta",
+            data=f,
+            file_name=output_path,
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
