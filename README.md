@@ -1,19 +1,24 @@
-# 🎈 Blank app template
+# CV Notaris App
 
-A simple Streamlit app template for you to modify!
+Aplikasi berbasis Streamlit untuk membuat Akta Pendirian CV otomatis.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Cara Jalankan
 
-### How to run it on your own machine
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-1. Install the requirements
+2. Jalankan aplikasi:
+```bash
+streamlit run app.py
+```
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+3. Isi form, lalu download hasil dokumen.
 
-2. Run the app
+## Struktur Folder
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+- `templates/` → berisi template DOCX dengan placeholder
+- `app.py` → kode aplikasi Streamlit
+- `requirements.txt` → daftar dependencies
+- `README.md` → panduan penggunaan
