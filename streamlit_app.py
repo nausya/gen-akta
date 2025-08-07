@@ -52,3 +52,10 @@ with st.sidebar:
     if st.button("📂 Muat Draft Lama"):
         load_draft()
 
+tab1, tab2 = st.tabs(["Tab 1", "Tab 2"])
+
+with tab1:
+    st.write("Ini Tab 1")
+
+with tab2:
+    st.write("Ini Tab 2")
