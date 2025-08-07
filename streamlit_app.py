@@ -94,7 +94,7 @@ with tab5:
     st.subheader("Klasifikasi KBLI")
     for i, k in enumerate(st.session_state.data["kbli_list"]):
         st.session_state.data["kbli_list"][i]["kode"] = st.text_input(f"Kode KBLI #{i+1}", k["kode"], key=f"kk{i}")
-        st.session_state.data["kbli_list"][i]["judul"] = st..text_area(f"Uraian KBLI #{i+1}", k["judul"], key=f"kj{i}")
+        st.session_state.data["kbli_list"][i]["judul"] = st.text_area(f"Uraian KBLI #{i+1}", k["judul"], key=f"kj{i}")
 
     col1, col2 = st.columns(2)
     with col1:
