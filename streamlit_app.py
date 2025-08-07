@@ -1,15 +1,12 @@
 import streamlit as st
-from docxtpl import DocxTemplate
 from datetime import datetime
-import json
+from docxtpl import DocxTemplate
 import os
+import json
 
-st.set_page_config(page_title="Akta Notaris Dinamis", layout="wide")
-st.title("📄 Aplikasi Akta Pendirian Badan Hukum")
+st.set_page_config(page_title="Aplikasi Akta Pendirian Badan Hukum", layout="wide")
 
-DATA_FILE = "draft_data.json"
-
-# Inisialisasi default state
+# --- Inisialisasi session state ---
 if "data" not in st.session_state:
     st.session_state.data = {
         "jenis_badan": "",
@@ -17,116 +14,129 @@ if "data" not in st.session_state:
         "tanggal_akta": str(datetime.today().date()),
         "jam_akta": "",
         "nama_badan": "",
-        "alamat_badan": "",
+        "alamat": "",
         "para_pihak": [],
-        "modal_list": [],
-        "kbli_list": []
+        "modal": [],
+        "kbli_list": [],
+        "nama_notaris": "UTAMI RAHMAYANTI, S.H.,M.Kn",
+        "logo": "UR (2).png"
     }
 
-# Fungsi Simpan/Muat Draft
+DATA_FILE = "draft_data.json"
+
+# --- Fungsi Simpan & Muat Draft ---
 def save_draft():
     with open(DATA_FILE, "w") as f:
         json.dump(st.session_state.data, f)
-    st.success("✅ Draft disimpan!")
+    st.success("✅ Draft berhasil disimpan")
 
 def load_draft():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
             st.session_state.data = json.load(f)
-        st.success("📂 Draft berhasil dimuat!")
+        st.success("📂 Draft berhasil dimuat")
+    else:
+        st.warning("⚠️ Belum ada draft yang tersimpan")
 
-# Sidebar untuk simpan/muat draft
-with st.sidebar:
-    st.markdown("## 💾 Draft")
-    if st.button("📂 Muat Draft Lama"):
-        load_draft()
-    if st.button("💾 Simpan Draft"):
-        save_draft()
+# === Sidebar ===
+st.sidebar.image("UR (2).png", width=120)
+st.sidebar.markdown("##")
+menu = st.sidebar.radio("Navigasi", ["Pembuatan Akta", "Persuratan", "Profil Notaris", "Admin Web"])
 
-# Tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📘 Umum", "🏢 Alamat", "👥 Para Pihak", "💰 Modal", "📚 KBLI", "📄 Export"
-])
+# === Header ===
+st.markdown(f"""
+    <h4 style='text-align:center; color:#0546b3'>{st.session_state.data['nama_notaris'].upper()} - NOTARIS KABUPATEN CIREBON</h4>
+    <h2 style='text-align:center;'>🧾 Aplikasi Akta Pendirian Badan Hukum</h2>
+    """, unsafe_allow_html=True)
 
-with tab1:
-    st.subheader("Informasi Umum")
-    st.session_state.data["jenis_badan"] = st.selectbox("Jenis Badan Hukum", ["", "CV", "Yayasan"], index=0)
-    st.session_state.data["nomor_akta"] = st.text_input("Nomor Akta", value=st.session_state.data["nomor_akta"])
-    st.session_state.data["tanggal_akta"] = str(st.date_input("Tanggal Akta", value=datetime.strptime(st.session_state.data["tanggal_akta"], "%Y-%m-%d")))
-    st.session_state.data["jam_akta"] = st.text_input("Jam Akta (contoh: 19.04 WIB)", value=st.session_state.data["jam_akta"])
+# === Menu: Pembuatan Akta ===
+if menu == "Pembuatan Akta":
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📘 Umum", "🏢 Alamat", "👥 Para Pihak", "💰 Modal", "📚 KBLI", "📄 Export"
+    ])
 
-with tab2:
-    st.subheader("Alamat Badan Hukum")
-    st.session_state.data["nama_badan"] = st.text_input("Nama CV / Yayasan", value=st.session_state.data["nama_badan"])
-    st.session_state.data["alamat_badan"] = st.text_area("Alamat Lengkap", value=st.session_state.data["alamat_badan"])
+    with tab1:
+        st.subheader("Informasi Umum")
+        st.session_state.data["jenis_badan"] = st.selectbox("Jenis Badan Hukum", ["CV", "PT", "Yayasan"], index=0 if st.session_state.data["jenis_badan"] == "" else ["CV", "PT", "Yayasan"].index(st.session_state.data["jenis_badan"]))
+        st.session_state.data["nomor_akta"] = st.text_input("Nomor Akta", value=st.session_state.data["nomor_akta"])
+        st.session_state.data["tanggal_akta"] = str(st.date_input("Tanggal Akta", value=datetime.strptime(st.session_state.data["tanggal_akta"], "%Y-%m-%d")))
+        st.session_state.data["jam_akta"] = st.text_input("Jam Akta (contoh: 19.04 WIB)", value=st.session_state.data["jam_akta"])
 
-with tab3:
-    st.subheader("Para Pihak / Pengurus")
-    for i, pihak in enumerate(st.session_state.data["para_pihak"]):
-        st.session_state.data["para_pihak"][i]["nama"] = st.text_input(f"Nama Pihak #{i+1}", value=pihak["nama"], key=f"pn{i}")
-        st.session_state.data["para_pihak"][i]["ttl"] = st.text_input(f"Tempat & Tanggal Lahir #{i+1}", value=pihak["ttl"], key=f"pttl{i}")
-        st.session_state.data["para_pihak"][i]["jabatan"] = st.text_input(f"Jabatan #{i+1}", value=pihak.get("jabatan", ""), key=f"pj{i}")
+    with tab2:
+        st.subheader("Alamat Badan Hukum")
+        st.session_state.data["nama_badan"] = st.text_input("Nama CV/PT/Yayasan", value=st.session_state.data["nama_badan"])
+        st.session_state.data["alamat"] = st.text_area("Alamat CV/PT/Yayasan", value=st.session_state.data["alamat"])
 
-    col1, col2 = st.columns(2)
-    with col1:
+    with tab3:
+        st.subheader("Data Para Pihak")
+        for i, pihak in enumerate(st.session_state.data["para_pihak"]):
+            st.session_state.data["para_pihak"][i]["nama"] = st.text_input(f"Nama Pihak {i+1}", pihak["nama"], key=f"nama{i}")
+            st.session_state.data["para_pihak"][i]["ttl"] = st.text_input(f"Tempat & Tanggal Lahir Pihak {i+1}", pihak["ttl"], key=f"ttl{i}")
+            st.session_state.data["para_pihak"][i]["pekerjaan"] = st.text_input(f"Pekerjaan Pihak {i+1}", pihak["pekerjaan"], key=f"kerja{i}")
         if st.button("➕ Tambah Pihak"):
-            st.session_state.data["para_pihak"].append({"nama": "", "ttl": "", "jabatan": ""})
-    with col2:
-        if st.button("🗑 Hapus Pihak Terakhir") and st.session_state.data["para_pihak"]:
-            st.session_state.data["para_pihak"].pop()
+            st.session_state.data["para_pihak"].append({"nama": "", "ttl": "", "pekerjaan": ""})
 
-with tab4:
-    st.subheader("Modal Awal / Kekayaan")
-    for i, m in enumerate(st.session_state.data["modal_list"]):
-        st.session_state.data["modal_list"][i]["nama"] = st.text_input(f"Nama Penyetor #{i+1}", m["nama"], key=f"mn{i}")
-        st.session_state.data["modal_list"][i]["jumlah"] = st.text_input(f"Jumlah #{i+1}", m["jumlah"], key=f"mj{i}")
-        st.session_state.data["modal_list"][i]["jenis"] = st.text_input(f"Jenis Modal #{i+1}", m["jenis"], key=f"mjns{i}")
-
-    col1, col2 = st.columns(2)
-    with col1:
+    with tab4:
+        st.subheader("Data Modal")
+        for i, modal in enumerate(st.session_state.data["modal"]):
+            st.session_state.data["modal"][i]["nama"] = st.text_input(f"Nama Penyetor {i+1}", modal["nama"], key=f"mn{i}")
+            st.session_state.data["modal"][i]["jumlah"] = st.number_input(f"Jumlah Modal {i+1}", value=modal["jumlah"], key=f"mj{i}")
         if st.button("➕ Tambah Modal"):
-            st.session_state.data["modal_list"].append({"nama": "", "jumlah": "", "jenis": ""})
-    with col2:
-        if st.button("🗑 Hapus Modal Terakhir") and st.session_state.data["modal_list"]:
-            st.session_state.data["modal_list"].pop()
+            st.session_state.data["modal"].append({"nama": "", "jumlah": 0})
 
-with tab5:
-    st.subheader("Klasifikasi KBLI")
-    for i, k in enumerate(st.session_state.data["kbli_list"]):
-        st.session_state.data["kbli_list"][i]["kode"] = st.text_input(f"Kode KBLI #{i+1}", k["kode"], key=f"kk{i}")
-        st.session_state.data["kbli_list"][i]["judul"] = st.text_area(f"Uraian KBLI #{i+1}", k["judul"], key=f"kj{i}")
-
-    col1, col2 = st.columns(2)
-    with col1:
+    with tab5:
+        st.subheader("Data KBLI")
+        for i, kbli in enumerate(st.session_state.data["kbli_list"]):
+            st.session_state.data["kbli_list"][i]["kode"] = st.text_input(f"Kode KBLI #{i+1}", kbli["kode"], key=f"kk{i}")
+            st.session_state.data["kbli_list"][i]["judul"] = st.text_area(f"Uraian KBLI #{i+1}", kbli["judul"], key=f"kj{i}")
         if st.button("➕ Tambah KBLI"):
             st.session_state.data["kbli_list"].append({"kode": "", "judul": ""})
-    with col2:
-        if st.button("🗑 Hapus KBLI Terakhir") and st.session_state.data["kbli_list"]:
-            st.session_state.data["kbli_list"].pop()
 
-with tab6:
-    st.subheader("Export Dokumen")
-    jenis = st.session_state.data["jenis_badan"]
-    template_map = {
-        "CV": "template_cv.docx",
-        "Yayasan": "template_yayasan.docx"
-    }
-    template_file = template_map.get(jenis)
+    with tab6:
+        st.subheader("Export Dokumen")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("💾 Simpan Draft"):
+                save_draft()
+        with col2:
+            if st.button("📂 Muat Draft Lama"):
+                load_draft()
 
-    if st.button("📄 Generate DOCX"):
-        if not jenis:
-            st.warning("⚠️ Silakan isi Jenis Badan Hukum di Tab Umum.")
-        elif not st.session_state.data["para_pihak"]:
-            st.warning("⚠️ Data Para Pihak kosong, silakan isi di Tab Pihak.")
-        elif not st.session_state.data["modal_list"]:
-            st.warning("⚠️ Data Modal kosong, silakan isi di Tab Modal.")
-        elif not st.session_state.data["kbli_list"]:
-            st.warning("⚠️ Data KBLI kosong, silakan isi di Tab KBLI.")
-        else:
-            doc = DocxTemplate(template_file)
-            doc.render(st.session_state.data)
-            filename = f"akta_{jenis.lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
-            doc.save(filename)
-            with open(filename, "rb") as f:
-                st.download_button("📥 Download Akta", f, file_name=filename)
+        st.markdown("---")
+        if st.button("📄 Generate DOCX"):
+            template_map = {
+                "CV": "template_cv.docx",
+                "PT": "template_pt.docx",
+                "Yayasan": "template_yayasan.docx"
+            }
+            template_path = template_map.get(st.session_state.data["jenis_badan"], None)
 
+            if not template_path or not os.path.exists(template_path):
+                st.error("⚠️ Template tidak ditemukan")
+            else:
+                try:
+                    doc = DocxTemplate(template_path)
+                    doc.render(st.session_state.data)
+                    output_name = f"akta_{st.session_state.data['jenis_badan'].lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
+                    doc.save(output_name)
+                    with open(output_name, "rb") as f:
+                        st.download_button("📥 Download Akta", f, file_name=output_name)
+                except Exception as e:
+                    st.error(f"❌ Gagal generate dokumen: {e}")
+
+# === Menu: Profil Notaris ===
+elif menu == "Profil Notaris":
+    st.subheader("Profil Notaris")
+    uploaded_logo = st.file_uploader("Upload Logo Notaris", type=["png", "jpg", "jpeg"])
+    if uploaded_logo:
+        with open("uploaded_logo.png", "wb") as f:
+            f.write(uploaded_logo.read())
+        st.session_state.data["logo"] = "uploaded_logo.png"
+
+    st.session_state.data["nama_notaris"] = st.text_input("Nama Notaris", value=st.session_state.data["nama_notaris"])
+    st.success("Perubahan disimpan otomatis.")
+
+# === Menu: Admin Web ===
+elif menu == "Admin Web":
+    st.subheader("Pengaturan Admin Web")
+    st.info("🛠️ Fitur ini dalam pengembangan lebih lanjut.")
