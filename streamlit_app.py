@@ -19,7 +19,7 @@ if "data" not in st.session_state:
         "modal": [],
         "kbli_list": [],
         "nama_notaris": "UTAMI RAHMAYANTI, S.H.,M.Kn",
-        "logo": "ur1.png"
+        "logo": "assets/logo_dummy.png"  # fallback logo dummy
     }
 
 DATA_FILE = "draft_data.json"
@@ -39,14 +39,18 @@ def load_draft():
         st.warning("⚠️ Belum ada draft yang tersimpan")
 
 # === Sidebar ===
-st.sidebar.image("UR (2).png", width=120)
+try:
+    st.sidebar.image(st.session_state.data["logo"], width=120)
+except:
+    st.sidebar.image("assets/logo_dummy.png", width=120)
+
 st.sidebar.markdown("##")
 menu = st.sidebar.radio("Navigasi", ["Pembuatan Akta", "Persuratan", "Profil Notaris", "Admin Web"])
 
 # === Header ===
 st.markdown(f"""
     <h4 style='text-align:center; color:#0546b3'>{st.session_state.data['nama_notaris'].upper()} - NOTARIS KABUPATEN CIREBON</h4>
-    <h2 style='text-align:center;'>🧞 Aplikasi Akta Pendirian Badan Hukum</h2>
+    <h2 style='text-align:center;'>🧾 Aplikasi Akta Pendirian Badan Hukum</h2>
     """, unsafe_allow_html=True)
 
 # === Menu: Pembuatan Akta ===
@@ -96,7 +100,7 @@ if menu == "Pembuatan Akta":
         st.subheader("Export Dokumen")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("📅 Simpan Draft"):
+            if st.button("💾 Simpan Draft"):
                 save_draft()
         with col2:
             if st.button("📂 Muat Draft Lama"):
@@ -120,11 +124,10 @@ if menu == "Pembuatan Akta":
                     output_name = f"akta_{st.session_state.data['jenis_badan'].lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
                     doc.save(output_name)
                     with open(output_name, "rb") as f:
-                        st.download_button("📅 Download Akta", f, file_name=output_name)
+                        st.download_button("📥 Download Akta", f, file_name=output_name)
                 except Exception as e:
                     st.error(f"❌ Gagal generate dokumen: {e}")
 
-# === Menu: Profil Notaris ===
 elif menu == "Profil Notaris":
     st.subheader("Profil Notaris")
     uploaded_logo = st.file_uploader("Upload Logo Notaris", type=["png", "jpg", "jpeg"])
@@ -136,7 +139,6 @@ elif menu == "Profil Notaris":
     st.session_state.data["nama_notaris"] = st.text_input("Nama Notaris", value=st.session_state.data["nama_notaris"])
     st.success("Perubahan disimpan otomatis.")
 
-# === Menu: Admin Web ===
 elif menu == "Admin Web":
     st.subheader("Pengaturan Admin Web")
     st.info("🛠️ Fitur ini dalam pengembangan lebih lanjut.")
