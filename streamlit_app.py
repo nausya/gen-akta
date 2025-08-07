@@ -44,7 +44,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 
 # === TAB 1: UMUM ===
 with tab1:
-    st.text_input("Jenis Badan Hukum", key="jenis_badan")
+    st.selectbox("Jenis Badan Hukum", ["", "CV", "Yayasan", "PT"], key="jenis_badan")
     st.text_input("Nama Badan Hukum", key="nama_badan")
     st.date_input("Tanggal Akta", key="tanggal_akta", value=datetime.strptime(st.session_state.data["tanggal_akta"], "%Y-%m-%d"))
     st.text_input("Jam Akta", key="jam_akta")
@@ -103,7 +103,6 @@ with tab5:
         if st.button("🗑 Hapus KBLI Terakhir") and st.session_state.data["kbli_list"]:
             st.session_state.data["kbli_list"].pop()
 
-# === TAB 6: EXPORT ===
 with tab6:
     st.markdown("### 📄 Buat Dokumen Akta")
     template_map = {
@@ -111,16 +110,19 @@ with tab6:
         "Yayasan": "template_yayasan.docx",
         "PT": "template_pt.docx"
     }
-    jenis = st.session_state.data["jenis_badan"]
-    template_file = template_map.get(jenis)
-
-    if st.button("📄 Generate DOCX"):
+    jenis = st.session_state.data.get("jenis_badan", "")
+    
+    if jenis not in template_map:
+        st.warning("⚠️ Silakan isi jenis badan hukum di Tab Umum terlebih dahulu.")
+    else:
+        template_file = template_map[jenis]
         if not os.path.exists(template_file):
-            st.error(f"Template tidak ditemukan: {template_file}")
+            st.error(f"❌ Template tidak ditemukan: {template_file}")
         else:
-            doc = DocxTemplate(template_file)
-            doc.render(st.session_state.data)
-            filename = f"akta_{jenis.lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
-            doc.save(filename)
-            with open(filename, "rb") as f:
-                st.download_button("📥 Download Akta", f, file_name=filename)
+            if st.button("📄 Generate DOCX"):
+                doc = DocxTemplate(template_file)
+                doc.render(st.session_state.data)
+                filename = f"akta_{jenis.lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
+                doc.save(filename)
+                with open(filename, "rb") as f:
+                    st.download_button("📥 Download Akta", f, file_name=filename)
