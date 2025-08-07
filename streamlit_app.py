@@ -75,5 +75,48 @@ with tab3:
         st.session_state.data["pengurus_list"][i]["jabatan"] = st.text_input(f"Jabatan #{i+1}", value=org["jabatan"], key=f"jabatan_{i}")
         st.session_state.data["pengurus_list"][i]["nama"] = st.text_input(f"Nama #{i+1}", value=org["nama"], key=f"nama_{i}")
         st.session_state.data["pengurus_list"][i]["nik"] = st.text_input(f"NIK #{i+1}", value=org["nik"], key=f"nik_{i}")
-    
-    col1, col2 = st
+
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("➕ Tambah Pengurus"):
+            st.session_state.data["pengurus_list"].append({"jabatan": "", "nama": "", "nik": ""})
+    with col2:
+        if st.button("🗑 Hapus Pengurus Terakhir") and st.session_state.data["pengurus_list"]:
+            st.session_state.data["pengurus_list"].pop()
+
+# === Tab 4: Export ===
+with tab4:
+    template_map = {
+        "CV": "template_cv.docx",
+        "PT": "template_pt.docx",
+        "Yayasan": "template_yayasan.docx"
+    }
+    jenis = st.session_state.data["jenis_badan"]
+    template_file = template_map.get(jenis)
+
+    if st.button("📄 Generate Dokumen DOCX"):
+        if not os.path.exists(template_file):
+            st.error(f"Template tidak ditemukan: {template_file}")
+        else:
+            doc = DocxTemplate(template_file)
+            doc.render(st.session_state.data)
+            filename = f"akta_{jenis.lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
+            doc.save(filename)
+
+            with open(filename, "rb") as f:
+                st.download_button("📥 Download Akta", f, file_name=filename)
+
+# === Tab 5: Referensi KBLI ===
+with tab5:
+    st.markdown("### 📚 Referensi KBLI (OSS RBA 2020)")
+
+    pdf_url = "https://oss.go.id/sites/default/files/2021-08/KBLI%202020%20Per%2031%20Agustus%202021.pdf"
+
+    components.html(f'''
+        <iframe src="{pdf_url}" width="100%" height="600px" type="application/pdf"></iframe>
+    ''', height=600)
+
+    st.session_state.data["bidang_usaha"] = st.text_area(
+        "✍️ Uraian KBLI yang dipilih (salin dari PDF di atas)",
+        value=st.session_state.data.get("bidang_usaha", "")
+    )
