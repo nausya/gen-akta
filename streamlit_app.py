@@ -48,4 +48,7 @@ with st.sidebar:
 
     if st.button("💾 Simpan Draft"):
         save_draft()
+
     if st.button("📂 Muat Draft Lama"):
+        load_draft()
+
