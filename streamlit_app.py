@@ -114,8 +114,14 @@ with tab6:
     template_file = template_map.get(jenis)
 
     if st.button("📄 Generate DOCX"):
-        if not jenis or not os.path.exists(template_file):
-            st.warning("⚠️ Silakan isi jenis badan hukum di Tab Umum terlebih dahulu atau pastikan file template tersedia.")
+        if not jenis:
+            st.warning("⚠️ Silakan isi Jenis Badan Hukum di Tab Umum.")
+        elif not st.session_state.data["para_pihak"]:
+            st.warning("⚠️ Data Para Pihak kosong, silakan isi di Tab Pihak.")
+        elif not st.session_state.data["modal_list"]:
+            st.warning("⚠️ Data Modal kosong, silakan isi di Tab Modal.")
+        elif not st.session_state.data["kbli_list"]:
+            st.warning("⚠️ Data KBLI kosong, silakan isi di Tab KBLI.")
         else:
             doc = DocxTemplate(template_file)
             doc.render(st.session_state.data)
@@ -123,3 +129,4 @@ with tab6:
             doc.save(filename)
             with open(filename, "rb") as f:
                 st.download_button("📥 Download Akta", f, file_name=filename)
+
