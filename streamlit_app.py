@@ -46,7 +46,7 @@ menu = st.sidebar.radio("Navigasi", ["Pembuatan Akta", "Persuratan", "Profil Not
 # === Header ===
 st.markdown(f"""
     <h4 style='text-align:center; color:#0546b3'>{st.session_state.data['nama_notaris'].upper()} - NOTARIS KABUPATEN CIREBON</h4>
-    <h2 style='text-align:center;'>🧾 Aplikasi Akta Pendirian Badan Hukum</h2>
+    <h2 style='text-align:center;'>🧞 Aplikasi Akta Pendirian Badan Hukum</h2>
     """, unsafe_allow_html=True)
 
 # === Menu: Pembuatan Akta ===
@@ -96,7 +96,7 @@ if menu == "Pembuatan Akta":
         st.subheader("Export Dokumen")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("💾 Simpan Draft"):
+            if st.button("📅 Simpan Draft"):
                 save_draft()
         with col2:
             if st.button("📂 Muat Draft Lama"):
@@ -120,7 +120,7 @@ if menu == "Pembuatan Akta":
                     output_name = f"akta_{st.session_state.data['jenis_badan'].lower()}_{st.session_state.data['nama_badan'].replace(' ', '_')}.docx"
                     doc.save(output_name)
                     with open(output_name, "rb") as f:
-                        st.download_button("📥 Download Akta", f, file_name=output_name)
+                        st.download_button("📅 Download Akta", f, file_name=output_name)
                 except Exception as e:
                     st.error(f"❌ Gagal generate dokumen: {e}")
 
