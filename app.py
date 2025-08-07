@@ -46,7 +46,7 @@ with st.form("form_cv"):
     submit = st.form_submit_button("Buat Akta")
 
 if submit:
-    doc = DocxTemplate("templates/akta_pendirian_cv_template.docx")
+    doc = DocxTemplate("akta_pendirian_cv_template.docx")
     context = {
         "nomor_akta": nomor_akta,
         "tanggal_akta": tanggal_akta.strftime("%d-%m-%Y"),
