@@ -4,7 +4,7 @@ from docxtpl import DocxTemplate
 import os
 import json
 
-st.set_page_config(page_title="Aplikasi Akta Pendirian Badan Hukum", layout="wide")
+st.set_page_config(page_title="Aplikasi Dukungan Kantor Notaris", layout="wide")
 
 # --- Inisialisasi session state ---
 if "data" not in st.session_state:
@@ -45,7 +45,7 @@ except:
     st.sidebar.image("logo.png", width=200)
 
 st.sidebar.markdown("##")
-menu = st.sidebar.radio("Navigasi", ["Pembuatan Akta", "Persuratan", "Profil Notaris", "Admin Web"])
+menu = st.sidebar.radio("Menu", ["Pembuatan Akta", "Persuratan", "Profil Notaris", "Admin Web"])
 
 # === Header ===
 st.markdown(f"""
