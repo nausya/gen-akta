@@ -50,7 +50,7 @@ menu = st.sidebar.radio("Menu", ["Pembuatan Akta", "Persuratan", "Profil Notaris
 # === Header ===
 st.markdown(f"""
     <h4 style='text-align:center; color:#0546b3'>{st.session_state.data['nama_notaris'].upper()} - NOTARIS KABUPATEN CIREBON</h4>
-    <h2 style='text-align:center;'>🧾 Aplikasi Akta Pendirian Badan Hukum</h2>
+    <h2 style='text-align:center;'>🧾 Aplikasi Dukungan Kantor Notaris</h2>
     """, unsafe_allow_html=True)
 
 # === Menu: Pembuatan Akta ===
